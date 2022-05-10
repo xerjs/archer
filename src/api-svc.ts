@@ -1,22 +1,21 @@
 import { action, MetaRule, Provider } from "@xerjs/avalon";
 
-export const actionRule = new MetaRule("avalon:svc", "api");
+export const apiRule = new MetaRule("avalon:svc", "api");
 
 export function apiSvc(perfix: string): ClassDecorator {
     return (target) => {
         Provider()(target);
-        Reflect.defineMetadata(actionRule.perfix, { perfix }, target);
+        Reflect.defineMetadata(apiRule.perfix, { perfix }, target);
     };
 }
 
 export namespace apiSvc {
-
     export interface ActOpt {
         method: string;
         path: string;
     }
 
-    export const rule = actionRule;
+    export const rule = apiRule;
 
     function httpAct(opt: ActOpt) {
         return <M>(target: Object, propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<M>) => {

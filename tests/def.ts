@@ -9,7 +9,6 @@ class Person {
 
 @apiSvc("/")
 export class Serve {
-
     pp: string;
     constructor() {
         this.pp = "xxx";

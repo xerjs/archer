@@ -4,5 +4,8 @@
     "typescript.format.semicolons": "insert",
     "typescript.preferences.quoteStyle": "double",
     "eslint.alwaysShowStatus": true,
-    "eslint.codeActionsOnSave.mode": "all"
+    "eslint.codeActionsOnSave.mode": "all",
+    "prettier.tabWidth": 4,
+    "prettier.semi": true,
+    "cSpell.words": ["mkey", "xerjs", "yctech"]
 }

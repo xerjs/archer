@@ -9,11 +9,13 @@ export function apiSvc(perfix: string): ClassDecorator {
     };
 }
 
+export interface ActOpt {
+    method: string;
+    path: string;
+}
+
 export namespace apiSvc {
-    export interface ActOpt {
-        method: string;
-        path: string;
-    }
+
 
     export const rule = apiRule;
 

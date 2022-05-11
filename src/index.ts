@@ -3,7 +3,8 @@ import Router from "koa-router";
 import { join as pathJoin } from "path";
 import { Avalon, ClassType } from "@xerjs/avalon";
 
-import { apiSvc } from "./api-svc";
+import { apiSvc, ActOpt } from "./api-svc";
+import { Installer } from "./installer";
 
 export { apiSvc };
 
@@ -18,28 +19,20 @@ export class Archer extends Avalon {
     readonly app: Koa;
 
     install(): void {
-        const router = new Router();
+        const installer = new Installer();
         for (const ctr of this.allClass) {
             const ctrMeta = apiSvc.rule.getMetadata(ctr) as { perfix: string; };
             if (!ctrMeta) continue;
+            const instance = this.resolve(ctr);
 
-            const propertyNames = apiSvc.rule.getMetadata(ctr.prototype) as string[];
-
-            for (const pkey of propertyNames) {
-                const mkey = apiSvc.rule.metaKey(pkey);
-                const meta = Reflect.getMetadata(mkey, ctr.prototype, pkey) as apiSvc.ActOpt;
-
-                const instance = this.resolve(ctr);
-                router.get(pathJoin(ctrMeta.perfix, meta.path), async (ctx, next) => {
-                    // ctx.router available
-                    const res = await instance[pkey]();
-                    ctx.body = res;
-                });
+            for (const pkey of apiSvc.rule.getMetadata(ctr.prototype) as string[]) {
+                const meta = Reflect.getMetadata(apiSvc.rule.metaKey(pkey), ctr.prototype, pkey) as ActOpt;
+                installer.setRouter(meta.method.toLocaleLowerCase(), pathJoin(ctrMeta.perfix, meta.path), instance, pkey);
             }
-            this.app
-                .use(router.routes())
-                .use(router.allowedMethods());
-
         }
+
+        installer.attachTo(this.app);
     }
+
+
 }

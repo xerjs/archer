@@ -2,7 +2,7 @@ import { action, MetaRule, Provider, actionArr } from "@xerjs/avalon";
 
 export const apiRule = new MetaRule("avalon:svc", "api");
 
-export function apiSvc(perfix: string): ClassDecorator {
+export function svc(perfix: string): ClassDecorator {
     return (target) => {
         Provider()(target);
         Reflect.defineMetadata(apiRule.perfix, { perfix }, target);
@@ -14,11 +14,11 @@ export interface ActOpt {
     path: string;
 }
 
-export namespace apiSvc {
+export namespace svc {
 
     export const rule = apiRule;
 
-    function httpAct(opt: ActOpt) {
+    function httpAct(opt: ActOpt): MethodDecorator {
         return <M>(target: Object, propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<M>) => {
             return action(opt, rule)(target, propertyKey, descriptor);
         };
@@ -49,7 +49,7 @@ type Convert = <T>(v: unknown) => T;
 export const reqRule = new MetaRule("avalon:svc", "req");
 
 export namespace req {
-    function reqAct(opt: ParOpt) {
+    function reqAct(opt: ParOpt): MethodDecorator {
         return <M>(target: Object, propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<M>) => {
             return actionArr(opt, reqRule)(target, propertyKey, descriptor);
         };

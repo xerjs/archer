@@ -44,32 +44,37 @@ export interface ParOpt {
     key?: string;
 }
 
-type Convert = <T>(v: unknown) => T;
+type Convert = (v: unknown) => any;
 
-export const reqRule = new MetaRule("avalon:svc", "req");
+const reqRule = new MetaRule("avalon:act", "req");
 
 export namespace req {
+
+    export const rule = reqRule;
+
     function reqAct(opt: ParOpt): MethodDecorator {
         return <M>(target: Object, propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<M>) => {
             return actionArr(opt, reqRule)(target, propertyKey, descriptor);
         };
     }
 
+    const noop = () => { };
+
     export function query(key?: string, fn?: Convert): ParameterDecorator {
         return (target: Object, propertyKey: string | symbol, index: number) => {
-            return reqAct({ index, from: "query", key, convert: fn });
+            return reqAct({ index, from: "query", key, convert: fn })(target, propertyKey, { value: noop });
         };
     }
 
     export function body(key?: string, fn?: Convert): ParameterDecorator {
         return (target: Object, propertyKey: string | symbol, index: number) => {
-            return reqAct({ index, from: "body", key, convert: fn });
+            return reqAct({ index, from: "body", key, convert: fn })(target, propertyKey, { value: noop });
         };
     }
 
     export function param(key: string, fn?: Convert): ParameterDecorator {
         return (target: Object, propertyKey: string | symbol, index: number) => {
-            return reqAct({ index, from: "param", key, convert: fn });
+            return reqAct({ index, from: "param", key, convert: fn })(target, propertyKey, { value: noop });
         };
     }
-}
+};

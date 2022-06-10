@@ -3,6 +3,7 @@ import { svc, req } from "../src";
 
 
 class Person {
+    id!: string;
     age!: number;
 }
 
@@ -20,6 +21,17 @@ export class Serve {
         const p = new Person();
         p.age = this.pp.length;
         return [p];
+    }
+
+    @svc.get("/users/:id")
+    async oneUser(
+        @req.param("id", Number)
+        id: string
+    ): Promise<Person> {
+        const p = new Person();
+        p.id = id;
+        p.age = 1;
+        return p;
     }
 
     @svc.post("/users")

@@ -20,4 +20,11 @@ describe("api-get", () => {
         assert.equal(response.status, 200);
         assert.deepEqual(response.body, [{ age: 3 }]);
     });
+
+    it("one user", async () => {
+        const res = await agent(server)
+            .get('/users/123')
+            .set('Accept', 'application/json');
+        assert.deepEqual(res.body, { id: 123, age: 1 });
+    });
 });

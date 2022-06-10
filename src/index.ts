@@ -26,9 +26,10 @@ export class Archer extends Avalon {
             const instance = this.resolve(ctr);
 
             for (const pKey of svc.rule.getMetadata(ctr.prototype) as string[]) {
-                const meta = Reflect.getMetadata(svc.rule.metaKey(pKey), ctr.prototype, pKey) as ActOpt;
+                const meta = svc.rule.propertyMeta(ctr.prototype, pKey) as ActOpt;
                 const method = meta.method.toLocaleLowerCase();
-                installer.setRouter(method, pathJoin(ctrMeta.perfix, meta.path), instance, pKey);
+                const act = installer.middleware(instance, pKey, req.rule.arrMetadata(ctr.prototype, pKey));
+                installer.setRouter(method, pathJoin(ctrMeta.perfix, meta.path), act);
             }
         }
 

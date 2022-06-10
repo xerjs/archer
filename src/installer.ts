@@ -1,5 +1,7 @@
 import Koa from "koa";
 import Router from "koa-router";
+import { isNullOrUndefined } from "util";
+import { ParOpt } from "./decorator";
 
 const methods = new Set(["get", "post", "put", "patch", "del", "delete"]);
 
@@ -9,15 +11,11 @@ export class Installer {
         this.router = new Router();
     }
 
-    setRouter(method: string, path: string, instance: any, pkey: string) {
+    setRouter(method: string, path: string, act: Router.IMiddleware) {
         if (!methods.has(method)) {
             throw new Error(`cant use method ${method}`);
         }
-        const act: Router.IMiddleware = async (ctx) => {
-            // console.log(ctx.router);
-            const res = await instance[pkey]();
-            ctx.body = res;
-        };
+
         switch (method) {
             case "get":
                 this.router.get(path, act);
@@ -28,6 +26,28 @@ export class Installer {
             default:
                 break;
         }
+    }
+
+    middleware(instance: any, pKey: string, metaList: ParOpt[]): Router.IMiddleware {
+        return async (ctx) => {
+            // console.log(ctx.router);
+            const params: unknown[] = [];
+            metaList.forEach((meta) => {
+                const fn = meta.convert || ((e: unknown) => e);
+                const value = this.resolveParam({ param: ctx.params, query: ctx.query, body: ctx.body }, meta);
+                params[meta.index] = fn(value);
+            });
+            const res = await instance[pKey](...params);
+            ctx.body = res;
+        };
+    }
+
+    resolveParam(record: { param: any, query: any, body: any; }, meta: ParOpt): any {
+        const data = record[meta.from];
+        if (meta.key) {
+            return data[meta.key];
+        }
+        return data;
     }
 
     attachTo(app: Koa) {

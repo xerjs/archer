@@ -22,6 +22,9 @@ export class Installer {
             case "get":
                 this.router.get(path, act);
                 break;
+            case "post":
+                this.router.get(path, act);
+                break;
             default:
                 break;
         }

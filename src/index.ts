@@ -27,7 +27,8 @@ export class Archer extends Avalon {
 
             for (const pkey of apiSvc.rule.getMetadata(ctr.prototype) as string[]) {
                 const meta = Reflect.getMetadata(apiSvc.rule.metaKey(pkey), ctr.prototype, pkey) as ActOpt;
-                installer.setRouter(meta.method.toLocaleLowerCase(), pathJoin(ctrMeta.perfix, meta.path), instance, pkey);
+                const method = meta.method.toLocaleLowerCase();
+                installer.setRouter(method, pathJoin(ctrMeta.perfix, meta.path), instance, pkey);
             }
         }
 

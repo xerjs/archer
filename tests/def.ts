@@ -21,4 +21,11 @@ export class Serve {
         p.age = this.pp.length;
         return [p];
     }
+
+    @apiSvc.post("/users")
+    async addUsers(): Promise<Person> {
+        const p = new Person();
+        p.age = Math.random();
+        return p;
+    }
 }

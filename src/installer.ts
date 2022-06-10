@@ -1,6 +1,6 @@
 import Koa from "koa";
 import Router from "koa-router";
-import { isNullOrUndefined } from "util";
+import bodyParser from "koa-bodyparser";
 import { ParOpt } from "./decorator";
 
 const methods = new Set(["get", "post", "put", "patch", "del", "delete"]);
@@ -21,7 +21,7 @@ export class Installer {
                 this.router.get(path, act);
                 break;
             case "post":
-                this.router.get(path, act);
+                this.router.post(path, act);
                 break;
             default:
                 break;
@@ -32,9 +32,10 @@ export class Installer {
         return async (ctx) => {
             // console.log(ctx.router);
             const params: unknown[] = [];
+
             metaList.forEach((meta) => {
                 const fn = meta.convert || ((e: unknown) => e);
-                const value = this.resolveParam({ param: ctx.params, query: ctx.query, body: ctx.body }, meta);
+                const value = this.resolveParam({ param: ctx.params, query: ctx.query, body: ctx.request.body }, meta);
                 params[meta.index] = fn(value);
             });
             const res = await instance[pKey](...params);
@@ -52,6 +53,7 @@ export class Installer {
 
     attachTo(app: Koa) {
         app
+            .use(bodyParser())
             .use(this.router.routes())
             .use(this.router.allowedMethods());
     }

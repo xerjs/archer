@@ -5,6 +5,7 @@ import { svc, req } from "../src";
 class Person {
     id!: string;
     age!: number;
+    q?: string;
 }
 
 
@@ -17,9 +18,19 @@ export class Serve {
 
     @svc.get("/users")
     async listUsers(): Promise<Person[]> {
-        await sleep(100);
+        await sleep(8);
         const p = new Person();
         p.age = this.pp.length;
+        return [p];
+    }
+
+    @svc.get("/users/s")
+    async queryUsers(
+        @req.query("query") query: string
+    ) {
+        await sleep(8);
+        const p = new Person();
+        p.q = query;
         return [p];
     }
 
@@ -28,6 +39,7 @@ export class Serve {
         @req.param("id", Number)
         id: string
     ): Promise<Person> {
+        await sleep(8);
         const p = new Person();
         p.id = id;
         p.age = 1;
@@ -35,9 +47,11 @@ export class Serve {
     }
 
     @svc.post("/users")
-    async addUsers(): Promise<Person> {
+    async addUsers(@req.body() per: Partial<Person>): Promise<Person> {
+        await sleep(8);
         const p = new Person();
-        p.age = Math.random();
+        Object.assign(p, per);
+        p.q = p.age.toString();
         return p;
     }
 }

@@ -35,6 +35,4 @@ export class Archer extends Avalon {
 
         installer.attachTo(this.app);
     }
-
-
 }

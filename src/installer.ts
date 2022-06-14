@@ -3,7 +3,7 @@ import Router from "koa-router";
 import bodyParser from "koa-bodyparser";
 import { ParOpt } from "./decorator";
 
-const methods = new Set(["get", "post", "put", "patch", "del", "delete"]);
+const methods = new Set(["get", "post", "put", "patch", "del"]);
 
 export class Installer {
     readonly router: Router;
@@ -22,6 +22,15 @@ export class Installer {
                 break;
             case "post":
                 this.router.post(path, act);
+                break;
+            case "put":
+                this.router.put(path, act);
+                break;
+            case "patch":
+                this.router.patch(path, act);
+                break;
+            case "del":
+                this.router.del(path, act);
                 break;
             default:
                 break;

@@ -35,6 +35,24 @@ export namespace svc {
             return httpAct({ method: "POST", path })(target, propertyKey, descriptor);
         };
     };
+
+    export function put(path: string): MethodDecorator {
+        return <M>(target: Object, propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<M>) => {
+            return httpAct({ method: "PUT", path })(target, propertyKey, descriptor);
+        };
+    };
+
+    export function del(path: string): MethodDecorator {
+        return <M>(target: Object, propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<M>) => {
+            return httpAct({ method: "DEL", path })(target, propertyKey, descriptor);
+        };
+    };
+
+    export function patch(path: string): MethodDecorator {
+        return <M>(target: Object, propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<M>) => {
+            return httpAct({ method: "PATCH", path })(target, propertyKey, descriptor);
+        };
+    };
 }
 
 export interface ParOpt {
@@ -78,3 +96,16 @@ export namespace req {
         };
     }
 };
+
+const resRule = new MetaRule("archer:method", "res");
+
+
+export namespace res {
+    export const rule = resRule;
+    export function redirect(code: number = 203): MethodDecorator {
+        return <M>(target: Object, propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<M>) => {
+            return action({ code }, rule)(target, propertyKey, descriptor);
+        };
+    }
+
+}

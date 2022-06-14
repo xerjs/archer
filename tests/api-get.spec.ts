@@ -35,11 +35,4 @@ describe("api-get", () => {
             .set('Accept', 'application/json');
         assert.deepEqual(res.body, [{ q: "abc" }]);
     });
-
-    it("add user", async () => {
-        const res = await agent(server)
-            .post('/users')
-            .send({ age: 111 });
-        assert.deepEqual(res.body, { age: 111, q: "111" });
-    });
 });

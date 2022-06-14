@@ -3,7 +3,7 @@ import { svc, req } from "../src";
 
 
 class Person {
-    id!: string;
+    id!: number;
     age!: number;
     q?: string;
 }
@@ -36,8 +36,7 @@ export class Serve {
 
     @svc.get("/users/:id")
     async oneUser(
-        @req.param("id", Number)
-        id: string
+        @req.param("id", Number) id: number
     ): Promise<Person> {
         await sleep(8);
         const p = new Person();
@@ -52,6 +51,40 @@ export class Serve {
         const p = new Person();
         Object.assign(p, per);
         p.q = p.age.toString();
+        return p;
+    }
+
+    @svc.put("/users/:id")
+    async putUser(
+        @req.param("id", Number) id: number
+    ): Promise<Person> {
+        await sleep(8);
+        const p = new Person();
+        p.id = id;
+        p.age = id * 2;
+        return p;
+    }
+
+
+    @svc.patch("/users/:id")
+    async patchUser(
+        @req.param("id", Number) id: number
+    ): Promise<Person> {
+        await sleep(8);
+        const p = new Person();
+        p.id = id;
+        p.age = id * 3;
+        return p;
+    }
+
+    @svc.del("/users/:id")
+    async delUser(
+        @req.param("id", Number) id: number
+    ): Promise<Person> {
+        await sleep(8);
+        const p = new Person();
+        p.id = id;
+        p.age = -id;
         return p;
     }
 }

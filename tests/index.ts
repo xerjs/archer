@@ -18,4 +18,6 @@ describe("@xerjs/archer tests", () => {
     });
 
     require("./api-get.spec");
+    require("./api-post.spec");
+    require("./api-ppd.spec");
 });

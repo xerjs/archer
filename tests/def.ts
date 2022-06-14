@@ -1,5 +1,5 @@
 import { sleep } from "@xerjs/avalon";
-import { svc, req } from "../src";
+import { svc, req, res } from "../src";
 
 
 class Person {
@@ -86,5 +86,14 @@ export class Serve {
         p.id = id;
         p.age = -id;
         return p;
+    }
+
+    @svc.del("/no")
+    @res.redirect(301)
+    async del302(
+        @req.param("id", Number) id: number
+    ): Promise<string> {
+        await sleep(8);
+        return "/404";
     }
 }

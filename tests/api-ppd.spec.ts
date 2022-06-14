@@ -32,4 +32,11 @@ describe("api-ppd", () => {
             .set('Accept', 'application/json');
         assert.deepEqual(res.body, { id: 123, age: -123 });
     });
+
+    it("del no", async () => {
+        agent(server)
+            .del('/no')
+            .expect(301)
+            .expect("location", "/404");
+    });
 });

@@ -3,10 +3,10 @@ import Router from "koa-router";
 import { join as pathJoin } from "path";
 import { Avalon, ClassType } from "@xerjs/avalon";
 
-import { svc, ActOpt, req } from "./decorator";
+import { svc, ActOpt, req, res } from "./decorator";
 import { Installer } from "./installer";
 
-export { svc, req };
+export { svc, req, res };
 
 export class Archer extends Avalon {
     constructor(cors: ClassType[], port?: number) {
@@ -28,7 +28,8 @@ export class Archer extends Avalon {
             for (const pKey of svc.rule.getMetadata(ctr.prototype) as string[]) {
                 const meta = svc.rule.propertyMeta(ctr.prototype, pKey) as ActOpt;
                 const method = meta.method.toLocaleLowerCase();
-                const act = installer.middleware(instance, pKey, req.rule.arrMetadata(ctr.prototype, pKey));
+                const pip = installer.pipRes(res.rule.arrMetadata(ctr.prototype, pKey));
+                const act = installer.middleware(instance, pKey, req.rule.arrMetadata(ctr.prototype, pKey), pip);
                 installer.setRouter(method, pathJoin(ctrMeta.perfix, meta.path), act);
             }
         }

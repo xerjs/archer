@@ -99,13 +99,16 @@ export namespace req {
 
 const resRule = new MetaRule("archer:method", "res");
 
+export interface ResOpt {
+    act: "redirect";
+    code: number;
+}
 
 export namespace res {
     export const rule = resRule;
-    export function redirect(code: number = 203): MethodDecorator {
+    export function redirect(code: number = 302): MethodDecorator {
         return <M>(target: Object, propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<M>) => {
-            return action({ code }, rule)(target, propertyKey, descriptor);
+            return actionArr({ code, act: "redirect" }, rule)(target, propertyKey, descriptor);
         };
     }
-
 }

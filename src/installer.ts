@@ -1,9 +1,11 @@
 import Koa from "koa";
 import Router from "koa-router";
 import bodyParser from "koa-bodyparser";
-import { ParOpt } from "./decorator";
+import { ParOpt, ResOpt } from "./decorator";
 
 const methods = new Set(["get", "post", "put", "patch", "del"]);
+
+type ResponsePip = (ctx: Koa.ParameterizedContext) => void;
 
 export class Installer {
     readonly router: Router;
@@ -37,8 +39,8 @@ export class Installer {
         }
     }
 
-    middleware(instance: any, pKey: string, metaList: ParOpt[]): Router.IMiddleware {
-        return async (ctx) => {
+    middleware(instance: any, pKey: string, metaList: ParOpt[], pip?: ResponsePip): Router.IMiddleware {
+        return async (ctx: Koa.ParameterizedContext): Promise<void> => {
             // console.log(ctx.router);
             const params: unknown[] = [];
 
@@ -49,6 +51,22 @@ export class Installer {
             });
             const res = await instance[pKey](...params);
             ctx.body = res;
+            if (pip) {
+                pip(ctx);
+            }
+        };
+    }
+
+    pipRes(metaList: ResOpt[]): ResponsePip {
+        return (ctx: Koa.ParameterizedContext) => {
+            const origin = ctx.body;
+            for (const e of metaList) {
+                if (e.act === "redirect" && e.code && typeof origin === "string") {
+                    ctx.status = e.code;
+                    ctx.redirect(origin);
+                    return ctx.body = "";
+                }
+            }
         };
     }
 

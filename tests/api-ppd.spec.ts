@@ -14,26 +14,23 @@ describe("api-ppd", () => {
 
     it("put user", async () => {
         const res = await agent(server)
-            .put('/users/123')
-            .set('Accept', 'application/json');
+            .put('/users/123');
         assert.deepEqual(res.body, { id: 123, age: 246 });
     });
 
     it("patch user", async () => {
         const res = await agent(server)
-            .patch('/users/123')
-            .set('Accept', 'application/json');
+            .patch('/users/123');
         assert.deepEqual(res.body, { id: 123, age: 369 });
     });
 
     it("del user", async () => {
         const res = await agent(server)
-            .del('/users/123')
-            .set('Accept', 'application/json');
+            .del('/users/123');
         assert.deepEqual(res.body, { id: 123, age: -123 });
     });
 
-    it("del no", async () => {
+    it("direct no", async () => {
         agent(server)
             .del('/no')
             .expect(301)

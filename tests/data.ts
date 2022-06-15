@@ -1,3 +1,3 @@
 
 
-export const globalData: Record<string, any> = {};
+export const testData: Record<string, any> = {};

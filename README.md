@@ -8,3 +8,4 @@ adapter from koa
 -   不处理异常,
 -   method: get, post, put, patch, del
 -   validate
+-   并发限制?

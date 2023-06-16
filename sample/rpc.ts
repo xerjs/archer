@@ -1,5 +1,6 @@
 import { AvalonContainer, Provider } from "@xerjs/avalon";
 import { rpc, rpcFun } from "../src";
+import * as http from "http";
 
 interface RcpDef {
     say(): Promise<void>;
@@ -31,8 +32,25 @@ class RpcSvc implements RcpDef {
     }
 }
 
+const port = 4090;
 async function main() {
     const ins = AvalonContainer.root.resolve(RpcSvc);
+
+    const handler = (req: http.IncomingMessage, res: http.ServerResponse) => {
+        // 处理请求
+        res.statusCode = 200;
+        setTimeout(() => {
+            res.setHeader("Content-Type", "text/plain");
+            res.end("Hello World\n");
+        }, 1000);
+    };
+
+    // 创建 HTTP 服务器并监听端口
+    const server = http.createServer(handler);
+
+    server.listen(port, () => {
+        console.log(`Server running at http://localhost:${port}/`);
+    });
 }
 
 process.nextTick(main);

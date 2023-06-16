@@ -3,7 +3,7 @@ import { Provider, MetaUtil } from "@xerjs/avalon";
 export const rpcMeta = new MetaUtil("archer.rpc");
 
 export type RpcOpt = {
-    trans: string;
+    trans?: string;
     path?: string;
 };
 export const rpc = rpcMeta.classDecorator<RpcOpt>((x) => {

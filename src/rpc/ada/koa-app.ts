@@ -28,7 +28,7 @@ const onErr: Koa.Middleware = async (ctx, next) => {
         koaLogger("%j", err);
         const resBody: ResBody = {
             code: err.code || 500,
-            data: err.message,
+            message: err.message,
         };
         ctx.body = resBody;
     }
@@ -49,7 +49,7 @@ export class KoaAdapter {
                     throw new Error(`Method ${inf.path} not implemented.`);
                 }
 
-                const args = this.pickBody(ctx.request.body);
+                const args = this.pickBody(ctx.request.body, inf);
                 const data = await method.call(inf.instance, ...args);
                 if (typeof data === "undefined") {
                     throw new Error(`Method ${inf.path} result is undefined.`);
@@ -66,10 +66,13 @@ export class KoaAdapter {
         return new Koa();
     }
 
-    pickBody(body: any) {
+    pickBody(body: any, info: MethodInfo) {
         const { args } = body;
         if (!Array.isArray(args)) {
-            throw new Error(`body.args is not array`);
+            throw new Error(`Expected body.args is array`);
+        }
+        if (info.pars.length !== args.length) {
+            throw new Error(`Expected ${info.pars.length} arguments of ${info.name}, but got ${args.length}.`);
         }
         return args;
     }

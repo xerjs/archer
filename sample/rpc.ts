@@ -1,6 +1,5 @@
 import { AvalonContainer, Provider } from "@xerjs/avalon";
 import { Blade, rpc, rpcFun } from "../src";
-import * as http from "http";
 
 interface RcpDef {
     say(): Promise<void>;

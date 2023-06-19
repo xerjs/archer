@@ -53,7 +53,7 @@ describe("rpc svc imp Blade", () => {
         assert.isTrue(info[0].instance instanceof BisHandlerImp);
     });
 
-    it("send req;expect=err", async () => {
+    it("send req;expect=404", async () => {
         let resp = await agent.post("/ais/add").send({ args: [] });
         assert.equal(resp.status, 404);
         assert.deepEqual(resp.text, "Not Found");
@@ -63,6 +63,16 @@ describe("rpc svc imp Blade", () => {
         assert.deepEqual(resp.text, "Not Found");
     });
 
+    it("send req;args=err;expect=err", async () => {
+        let resp = await agent.post("/Bis/add").send({ args: null });
+        assert.equal(resp.status, 200);
+        assert.deepEqual(resp.body, { code: 500, message: "Expected body.args is array" });
+
+        resp = await agent.post("/Bis/add").send({ args: [1] });
+        assert.equal(resp.status, 200);
+        assert.deepEqual(resp.body, { code: 500, message: "Expected 2 arguments of add, but got 1." });
+    });
+
     it("send req;expect=200", async () => {
         let resp = await agent.post("/Bis/add").send({ args: [1, 2] });
         assert.equal(resp.status, 200);
@@ -70,6 +80,6 @@ describe("rpc svc imp Blade", () => {
         const now = Date.now();
         resp = await agent.post("/Bis/now").send({ args: [] });
         assert.equal(resp.status, 200);
-        assert.isTrue(resp.body.data > now);
+        assert.isTrue(resp.body.data >= now);
     });
 });

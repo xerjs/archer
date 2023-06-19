@@ -53,9 +53,23 @@ describe("rpc svc imp Blade", () => {
         assert.isTrue(info[0].instance instanceof BisHandlerImp);
     });
 
-    it("send req", async () => {
-        const resp = await agent.post("/Bis/add").send({ args: [1, 2] });
+    it("send req;expect=err", async () => {
+        let resp = await agent.post("/ais/add").send({ args: [] });
+        assert.equal(resp.status, 404);
+        assert.deepEqual(resp.text, "Not Found");
+
+        resp = await agent.post("/Bis/abc").send({ args: [] });
+        assert.equal(resp.status, 404);
+        assert.deepEqual(resp.text, "Not Found");
+    });
+
+    it("send req;expect=200", async () => {
+        let resp = await agent.post("/Bis/add").send({ args: [1, 2] });
         assert.equal(resp.status, 200);
         assert.deepEqual(resp.body, { code: 200, data: 3 });
+        const now = Date.now();
+        resp = await agent.post("/Bis/now").send({ args: [] });
+        assert.equal(resp.status, 200);
+        assert.isTrue(resp.body.data > now);
     });
 });

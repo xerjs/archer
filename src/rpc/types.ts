@@ -3,4 +3,5 @@ export interface MethodInfo {
     pars: unknown[];
     name: string;
     path: string;
+    instance: unknown;
 }

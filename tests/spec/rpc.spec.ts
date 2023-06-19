@@ -47,5 +47,7 @@ describe("rpc svc imp Blade", () => {
             info.map((e) => e.path),
             ["add", "say", "now", "info"].map((e) => `/Bis/${e}`),
         );
+
+        assert.isTrue(info[0].instance instanceof BisHandlerImp);
     });
 });

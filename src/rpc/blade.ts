@@ -1,8 +1,8 @@
 import { AvalonContainer, ClassType, Provider } from "@xerjs/avalon";
 
 import { RequestListener, createServer, IncomingMessage, ServerResponse, Server } from "http";
-import { FunOpt, RpcOpt, rpcMeta } from "./decorator";
-import { MethodInfo } from "./types";
+import { rpcMeta } from "./decorator";
+import { MethodInfo, FunOpt, RpcOpt } from "./types";
 import { KoaAdapter } from "./ada/koa-app";
 
 @Provider()

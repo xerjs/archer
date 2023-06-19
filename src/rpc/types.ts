@@ -7,3 +7,13 @@ export interface MethodInfo {
     instance: unknown;
     types: z.AnyZodTuple;
 }
+
+export type RpcOpt = {
+    trans: string;
+    path: string;
+};
+
+export type FunOpt = {
+    path: string;
+    types: z.AnyZodTuple;
+};

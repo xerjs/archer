@@ -18,6 +18,7 @@ export class RcpError extends Error {
     }
 }
 
+const onBody = bodyParser();
 const onErr: Koa.Middleware = async (ctx, next) => {
     try {
         ctx.status = 200;
@@ -37,9 +38,9 @@ const onErr: Koa.Middleware = async (ctx, next) => {
 export class KoaAdapter {
     createRouter(infos: MethodInfo[]) {
         const router = new Router();
-        router.use(bodyParser(), onErr);
+        router.use(onErr, onBody);
         for (const inf of infos) {
-            const ware: Router.IMiddleware = async (ctx) => {
+            const ware: Koa.Middleware = async (ctx) => {
                 let method: Function | undefined;
                 if (inf.instance) {
                     method = _.get<Function>(inf.instance, inf.name);

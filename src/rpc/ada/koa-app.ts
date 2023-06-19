@@ -74,6 +74,16 @@ export class KoaAdapter {
         if (info.pars.length !== args.length) {
             throw new Error(`Expected ${info.pars.length} arguments of ${info.name}, but got ${args.length}.`);
         }
+
+        if (info.types) {
+            const res = info.types.safeParse(args);
+            if (!res.success) {
+                for (const [i, msg] of Object.entries(res.error.formErrors.fieldErrors)) {
+                    const [s] = msg!;
+                    throw new Error(`${s} @args ${i}`);
+                }
+            }
+        }
         return args;
     }
 }

@@ -2,6 +2,7 @@ import { AvalonContainer, Provider } from "@xerjs/avalon";
 import { Blade, rpc, rpcFun } from "../../src";
 import { assert } from "chai";
 import { createAgent } from "../helper/agent";
+import { z } from "zod";
 
 interface BisHandler {
     say(): Promise<void>;
@@ -13,7 +14,7 @@ interface BisHandler {
 @Provider()
 @rpc({ path: "Bis" })
 class BisHandlerImp implements BisHandler {
-    @rpcFun()
+    @rpcFun({ types: z.tuple([z.number(), z.number()]) })
     async add(a: number, b: number): Promise<number> {
         return a + b;
     }
@@ -45,6 +46,9 @@ describe("rpc svc imp Blade", () => {
             ["add", "say", "now", "info"],
         );
 
+        const add = info.find((e) => e.name === "add")!;
+        assert.deepEqual(add.pars, [Number, Number]);
+
         assert.deepEqual(
             info.map((e) => e.path),
             ["add", "say", "now", "info"].map((e) => `/Bis/${e}`),
@@ -71,6 +75,16 @@ describe("rpc svc imp Blade", () => {
         resp = await agent.post("/Bis/add").send({ args: [1] });
         assert.equal(resp.status, 200);
         assert.deepEqual(resp.body, { code: 500, message: "Expected 2 arguments of add, but got 1." });
+    });
+
+    it("send req;args=err type;expect=zError", async () => {
+        let resp = await agent.post("/Bis/add").send({ args: ["a", "b"] });
+        assert.equal(resp.status, 200);
+        assert.deepEqual(resp.body, { code: 500, message: "Expected number, received string @args 0" });
+
+        resp = await agent.post("/Bis/add").send({ args: [1, "b"] });
+        assert.equal(resp.status, 200);
+        assert.deepEqual(resp.body, { code: 500, message: "Expected number, received string @args 1" });
     });
 
     it("send req;expect=200", async () => {

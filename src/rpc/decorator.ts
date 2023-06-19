@@ -1,4 +1,5 @@
 import { Provider, MetaUtil } from "@xerjs/avalon";
+import { z } from "zod";
 
 export const rpcMeta = new MetaUtil("archer.rpc");
 
@@ -15,8 +16,9 @@ export const rpc = rpcMeta.classDecorator<RpcOpt>((x) => {
 
 export type FunOpt = {
     path: string;
+    types: z.AnyZodTuple;
 };
-export const rpcFun = rpcMeta.propertyDecorator<FunOpt>((x) => {
+export const rpcFun = rpcMeta.propertyDecorator<Partial<FunOpt>>((x) => {
     x = x || {};
     Object.freeze(x);
     return x;

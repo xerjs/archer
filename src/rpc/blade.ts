@@ -21,7 +21,7 @@ export class Blade {
             if (path === ".") {
                 path = mk;
             }
-            return { name: mk, res, pars, path: `/${root}/${path}`, instance };
+            return { name: mk, res, pars, path: `/${root}/${path}`, instance, types: mMate.types };
         });
 
         return infos;

@@ -47,7 +47,8 @@ export class KoaAdapter {
                 if (!method) {
                     throw new Error(`Method ${inf.path} not implemented.`);
                 }
-                const args = this.pickBody(ctx.body);
+
+                const args = this.pickBody(ctx.request.body);
                 const data = await method.call(inf.instance, ...args);
                 if (typeof data === "undefined") {
                     throw new Error(`Method ${inf.path} result is undefined.`);

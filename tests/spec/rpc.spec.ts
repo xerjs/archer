@@ -1,6 +1,7 @@
 import { AvalonContainer, Provider } from "@xerjs/avalon";
 import { Blade, rpc, rpcFun } from "../../src";
 import { assert } from "chai";
+import { createAgent } from "../helper/agent";
 
 interface BisHandler {
     say(): Promise<void>;
@@ -34,6 +35,7 @@ class BisHandlerImp implements BisHandler {
 
 describe("rpc svc imp Blade", () => {
     const blade = AvalonContainer.root.resolve(Blade);
+    const agent = createAgent(blade.install([BisHandlerImp]));
 
     it("Blade info", () => {
         const info = blade.info(BisHandlerImp);
@@ -49,5 +51,11 @@ describe("rpc svc imp Blade", () => {
         );
 
         assert.isTrue(info[0].instance instanceof BisHandlerImp);
+    });
+
+    it("send req", async () => {
+        const resp = await agent.post("/Bis/add").send({ args: [1, 2] });
+        assert.equal(resp.status, 200);
+        assert.deepEqual(resp.body, { code: 200, data: 3 });
     });
 });

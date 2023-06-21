@@ -96,4 +96,11 @@ describe("rpc svc imp Blade", () => {
         assert.equal(resp.status, 200);
         assert.isTrue(resp.body.data >= now);
     });
+
+    it("agent with prefix", async () => {
+        const ag = createAgent(blade.install([BisHandlerImp], "/ii"));
+        const resp = await ag.post("/ii/Bis/add").send({ args: [1, 2] });
+        assert.equal(resp.status, 200);
+        assert.deepEqual(resp.body, { code: 200, data: 3 });
+    });
 });

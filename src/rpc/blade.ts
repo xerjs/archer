@@ -1,6 +1,6 @@
 import { AvalonContainer, ClassType, Provider } from "@xerjs/avalon";
 
-import { RequestListener, createServer, IncomingMessage, ServerResponse, Server } from "http";
+import { RequestListener, createServer, Server } from "http";
 import { rpcMeta } from "./decorator";
 import { MethodInfo, FunOpt, RpcOpt } from "./types";
 import { KoaAdapter } from "./ada/koa-app";
@@ -27,11 +27,13 @@ export class Blade {
         return infos;
     }
 
-    install(cls: ClassType[]): RequestListener {
+    install(cls: ClassType[], prefix?: string): RequestListener {
         const app = this.ada.createApp();
-
         for (const ctr of cls) {
             const r = this.ada.createRouter(this.info(ctr));
+            if (prefix) {
+                r.prefix(prefix);
+            }
             app.use(r.routes());
         }
         return app.callback();

@@ -3,6 +3,7 @@ import { Blade, rpc, rpcFun } from "../../src";
 import { assert } from "chai";
 import { createAgent } from "../helper/agent";
 import { z } from "zod";
+import { BisError } from "../helper/err";
 
 interface BisHandler {
     say(): Promise<void>;
@@ -20,7 +21,7 @@ class BisHandlerImp implements BisHandler {
     }
     @rpcFun()
     async say(): Promise<void> {
-        console.log("say log");
+        throw new Error("say err");
     }
 
     @rpcFun()
@@ -30,7 +31,7 @@ class BisHandlerImp implements BisHandler {
 
     @rpcFun()
     async info(): Promise<{ id: string; version: string }> {
-        return { id: __dirname, version: "1.0" };
+        throw new BisError(400, "info err");
     }
 }
 
@@ -77,7 +78,7 @@ describe("rpc svc imp Blade", () => {
         assert.deepEqual(resp.body, { code: 500, message: "Expected 2 arguments of add, but got 1." });
     });
 
-    it("send req;args=err type;expect=zError", async () => {
+    it("send req;args=err type;expect=zodError", async () => {
         let resp = await agent.post("/Bis/add").send({ args: ["a", "b"] });
         assert.equal(resp.status, 200);
         assert.deepEqual(resp.body, { code: 500, message: "Expected number, received string @args 0" });
@@ -95,6 +96,16 @@ describe("rpc svc imp Blade", () => {
         resp = await agent.post("/Bis/now").send({ args: [] });
         assert.equal(resp.status, 200);
         assert.isTrue(resp.body.data >= now);
+    });
+
+    it("send req;expect=err", async () => {
+        let resp = await agent.post("/Bis/say").send({ args: [] });
+        assert.equal(resp.status, 200);
+        assert.deepEqual(resp.body, { code: 500, message: "say err" });
+
+        resp = await agent.post("/Bis/info").send({ args: [] });
+        assert.equal(resp.status, 200);
+        assert.deepEqual(resp.body, { code: 400, message: "info err" });
     });
 
     it("agent with prefix", async () => {

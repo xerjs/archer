@@ -67,7 +67,7 @@ export class Serve {
     }
 
     async del302(id: number): Promise<string> {
-        await sleep(8);
+        await sleep(8 + id);
         return "/404";
     }
 }

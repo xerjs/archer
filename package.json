@@ -35,7 +35,7 @@
   "scripts": {
     "build": "npx tsc -p ./tsconfig-build.json",
     "coverage": "nyc npm run test",
-    "dev:lint": "npx eslint -c .eslintrc.cjs ./**/*.ts",
+    "dev:lint": "npx eslint -c .eslintrc.cjs \"./**/*.ts\"",
     "test": "mocha"
   },
   "author": "lusionx",

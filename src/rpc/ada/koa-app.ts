@@ -1,7 +1,7 @@
 import { Provider } from '@xerjs/avalon'
 import Koa from 'koa'
 import Router from 'koa-router'
-import { MethodInfo } from '../types'
+import { ApiInfo, MethodInfo } from '../types'
 import * as _ from '../../utils'
 import { koaLogger } from '../../utils'
 import bodyParser from 'koa-bodyparser'
@@ -66,6 +66,49 @@ export class KoaAdapter {
         return new Koa()
     }
 
+    createEmptyRouter() {
+        return new Router().use(onErr, onBody)
+    }
+
+    registerRouter(router: Router, infos: ApiInfo[]) {
+        for (const inf of infos) {
+            const ware: Koa.Middleware = async (ctx) => {
+                let method: Function | undefined
+                if (inf.instance) {
+                    method = _.get<Function>(inf.instance, inf.name)
+                }
+                if (!method) {
+                    throw new Error(`Method ${inf.name} path ${inf.path} not implemented.`)
+                }
+
+                let data
+                if (inf.inject) {
+                    const val: unknown[] = []
+                    for (let ii = 0; ii < inf.inject.length; ii++) {
+                        const inj = inf.inject[ii]
+                        val[ii] = this.pickCtx(ctx, inj.from, inj.key)
+                    }
+
+                    data = await method.call(inf.instance, ...val)
+                } else {
+                    data = await method.call(inf.instance)
+                }
+
+                if (typeof data === 'undefined') {
+                    throw new Error(`Method ${inf.path} result is undefined.`)
+                }
+                ctx.body = { code: 200, data } as ResBody
+            }
+            if (inf.method === 'get') {
+                router.get(inf.path, ware)
+            } else if (inf.method === 'post') {
+                router.post(inf.path, ware)
+            } else {
+                throw new Error(`Method ${inf.method} ${inf.path} not implemented.`)
+            }
+        }
+    }
+
     pickBody(body: any, info: MethodInfo) {
         const { args } = body
         if (!Array.isArray(args)) {
@@ -87,5 +130,15 @@ export class KoaAdapter {
             }
         }
         return args
+    }
+
+    pickCtx(ctx: Koa.Context, from: string, key: string): unknown {
+        if (from === 'param') {
+            return ctx.params[key]
+        } else if (from === 'query') {
+            return ctx.query[key]
+        }
+
+        throw new Error(`Unknown ctx from ${from}`)
     }
 }

@@ -17,8 +17,8 @@ class BisHandler {
     }
 
     @apiGet('/hi')
-    async hi(@fromQuery('name') name: string = '') {
-        return 'hi' + name
+    async hi(@fromQuery('name') name: string = '', @fromQuery('age') age: string = '') {
+        return 'hi' + name + age
     }
 
     async local(name: string) {
@@ -35,7 +35,6 @@ describe('Shield api', () => {
 
     it('Shield info', () => {
         const infos = shield.info(BisHandler, '/api/v1')
-        console.log(infos)
 
         const add = infos.find((e) => e.name === 'add')
         assert.include(add, {
@@ -74,8 +73,12 @@ describe('Shield api', () => {
     })
 
     it('get query', async () => {
-        const res = await agent.get('/api/v1/hi?name=xerjs')
+        let res = await agent.get('/api/v1/hi?name=xerjs')
         assert.equal(res.status, 200)
         assert.deepEqual(res.body, { code: 200, data: 'hixerjs' })
+
+        res = await agent.get('/api/v1/hi?name=xerjs&age=18')
+        assert.equal(res.status, 200)
+        assert.deepEqual(res.body, { code: 200, data: 'hixerjs18' })
     })
 })

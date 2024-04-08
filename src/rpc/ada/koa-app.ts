@@ -133,12 +133,17 @@ export class KoaAdapter {
     }
 
     pickCtx(ctx: Koa.Context, from: string, key: string): unknown {
+        let source: any
         if (from === 'param') {
-            return ctx.params[key]
+            source = ctx.params
         } else if (from === 'query') {
-            return ctx.query[key]
+            source = ctx.query
+        } else if (from === 'header') {
+            source = ctx.header
+        } else {
+            throw new Error(`Unknown ctx from ${from}`)
         }
 
-        throw new Error(`Unknown ctx from ${from}`)
+        return key ? source[key] : source
     }
 }

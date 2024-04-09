@@ -143,7 +143,7 @@ export class KoaAdapter {
         } else {
             throw new Error(`Unknown ctx from ${from}`)
         }
-
-        return key ? source[key] : source
+        if (!key || key === '.') return source
+        return _.get(source, key)
     }
 }

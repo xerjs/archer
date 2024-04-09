@@ -45,20 +45,25 @@ function setArg(arg: ApiArg) {
     return fn
 }
 
+const fromVal = {
+    param: 'param',
+    query: 'query',
+    body: 'body',
+}
+
 export const fromParam = (key: string, convert?: ApiArgConvert) => {
-    return setArg({ from: 'param', key, convert })
+    return setArg({ from: fromVal.param, key, convert })
 }
 
 fromParam.int = (key: string) => {
-    const from = 'param'
     return setArg({
-        from,
+        from: fromVal.param,
         key,
         convert: (v) => {
             const rs = parseInt(v) || v
             const ok = z.number().safeParse(rs)
             if (!ok.success) {
-                const msg = _.format('%s.%s: %s', from, key, ok.error.errors[0].message)
+                const msg = _.format('%s.%s: %s', fromVal.param, key, ok.error.errors[0].message)
                 throw _.ErrorWithCode(40000, msg)
             }
             return rs
@@ -66,12 +71,14 @@ fromParam.int = (key: string) => {
     })
 }
 
+fromParam.float = (key: string) => {}
+
 export const fromQuery = (key: string) => {
-    return setArg({ from: 'query', key })
+    return setArg({ from: fromVal.query, key })
 }
 
 export const fromBody = (key: string) => {
-    return setArg({ from: 'body', key })
+    return setArg({ from: fromVal.body, key })
 }
 
 export function resolveParam(target: any, propertyKey: string): ApiArg[] {

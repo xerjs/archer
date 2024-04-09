@@ -11,17 +11,20 @@ export interface MethodInfo {
 export interface ApiInfo {
     res: unknown
     pars: unknown[]
-    inject: ApiParam[]
+    inject: ApiArg[]
     name: string
     path: string
     instance: unknown
     method: string
 }
 
-export interface ApiParam {
+export interface ApiArg {
     from: string
     key: string
+    convert?: (v: any) => any
 }
+
+export type ApiArgConvert = (v: unknown) => unknown
 
 export type RpcOpt = {
     trans: string

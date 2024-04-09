@@ -1,5 +1,7 @@
 import { MetaUtil } from '@xerjs/avalon'
-import { FunOpt, RpcOpt, ApiOpt, ApiParam } from './types'
+import { z } from 'zod'
+import { FunOpt, RpcOpt, ApiOpt, ApiArg, ApiArgConvert } from './types'
+import * as _ from '../utils'
 
 export const rpcMeta = new MetaUtil('archer.rpc')
 
@@ -31,43 +33,48 @@ export const apiGet = apiMeta.methodDecorator<string>((path) => {
     return { method: 'get', path } as ApiOpt
 })
 
-export const fromParam = (key: string) => {
+function setArg(arg: ApiArg) {
     const fn: ParameterDecorator = (target, propertyKey, parameterIndex) => {
         let params = Reflect.getMetadata(apiMeta.proKey + '.param', target, propertyKey)
         if (!params) {
             params = []
         }
-        params[parameterIndex] = { from: 'param', key }
+        params[parameterIndex] = arg
         Reflect.defineMetadata(apiMeta.proKey + '.param', params, target, propertyKey)
     }
     return fn
+}
+
+export const fromParam = (key: string, convert?: ApiArgConvert) => {
+    return setArg({ from: 'param', key, convert })
+}
+
+fromParam.int = (key: string) => {
+    const from = 'param'
+    return setArg({
+        from,
+        key,
+        convert: (v) => {
+            const rs = parseInt(v) || v
+            const ok = z.number().safeParse(rs)
+            if (!ok.success) {
+                const msg = _.format('%s.%s: %s', from, key, ok.error.errors[0].message)
+                throw _.ErrorWithCode(40000, msg)
+            }
+            return rs
+        },
+    })
 }
 
 export const fromQuery = (key: string) => {
-    const fn: ParameterDecorator = (target, propertyKey, parameterIndex) => {
-        let params = Reflect.getMetadata(apiMeta.proKey + '.param', target, propertyKey)
-        if (!params) {
-            params = []
-        }
-        params[parameterIndex] = { from: 'query', key }
-        Reflect.defineMetadata(apiMeta.proKey + '.param', params, target, propertyKey)
-    }
-    return fn
+    return setArg({ from: 'query', key })
 }
 
 export const fromBody = (key: string) => {
-    const fn: ParameterDecorator = (target, propertyKey, parameterIndex) => {
-        let params = Reflect.getMetadata(apiMeta.proKey + '.param', target, propertyKey)
-        if (!params) {
-            params = []
-        }
-        params[parameterIndex] = { from: 'query', key } as ApiParam
-        Reflect.defineMetadata(apiMeta.proKey + '.param', params, target, propertyKey)
-    }
-    return fn
+    return setArg({ from: 'body', key })
 }
 
-export function resolveParam(target: any, propertyKey: string): ApiParam[] {
+export function resolveParam(target: any, propertyKey: string): ApiArg[] {
     const item = typeof target === 'function' ? target.prototype : target
     return Reflect.getMetadata(apiMeta.proKey + '.param', item, propertyKey)
 }

@@ -87,8 +87,10 @@ export class KoaAdapter {
                     for (let ii = 0; ii < inf.inject.length; ii++) {
                         const inj = inf.inject[ii]
                         val[ii] = this.pickCtx(ctx, inj.from, inj.key)
+                        if (typeof inj.convert === 'function') {
+                            val[ii] = inj.convert(val[ii])
+                        }
                     }
-
                     data = await method.call(inf.instance, ...val)
                 } else {
                     data = await method.call(inf.instance)
@@ -123,10 +125,8 @@ export class KoaAdapter {
         if (info.types) {
             const res = info.types.safeParse(args)
             if (!res.success) {
-                for (const [i, msg] of Object.entries(res.error.formErrors.fieldErrors)) {
-                    const [s] = msg!
-                    throw new Error(`${s} @args ${i}`)
-                }
+                const [i, s] = _.firstZodError(res.error)
+                throw new Error(`${s} @args ${i}`)
             }
         }
         return args

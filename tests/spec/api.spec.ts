@@ -24,6 +24,11 @@ class BisHandler {
     async local(name: string) {
         return 'local ' + name
     }
+
+    @apiGet('/add/:a/:b')
+    async paramNumber(@fromParam.int('a') a: number, @fromParam.int('b') b: number) {
+        return a * b
+    }
 }
 
 describe('Shield api', () => {
@@ -80,5 +85,24 @@ describe('Shield api', () => {
         res = await agent.get('/api/v1/hi?name=xerjs&age=18')
         assert.equal(res.status, 200)
         assert.deepEqual(res.body, { code: 200, data: 'hixerjs18' })
+    })
+
+    it('get params int', async () => {
+        let res = await agent.get('/api/v1/add/2/3')
+        assert.equal(res.status, 200)
+        assert.deepEqual(res.body, { code: 200, data: 6 })
+
+        res = await agent.get('/api/v1/add/2/3')
+        assert.equal(res.status, 200)
+        assert.deepEqual(res.body, { code: 200, data: 6 })
+    })
+
+    it('get params int;error', async () => {
+        let res = await agent.get('/api/v1/add/x/3')
+        assert.equal(res.status, 200)
+        assert.deepEqual(res.body, {
+            code: 40000,
+            message: 'param.a: Expected number, received string',
+        })
     })
 })

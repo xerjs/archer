@@ -49,6 +49,11 @@ const fromVal = {
     param: 'param',
     query: 'query',
     body: 'body',
+    header: 'header',
+}
+
+export const fromHeader = (key: string = '.') => {
+    return setArg({ from: fromVal.header, key })
 }
 
 export const fromParam = (key: string, convert?: ApiArgConvert) => {
@@ -77,7 +82,7 @@ export const fromQuery = (key: string) => {
     return setArg({ from: fromVal.query, key })
 }
 
-export const fromBody = (key: string) => {
+export const fromBody = (key: string = '.') => {
     return setArg({ from: fromVal.body, key })
 }
 

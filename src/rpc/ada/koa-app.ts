@@ -21,17 +21,21 @@ export class RcpError extends Error {
 const onBody = bodyParser()
 const onErr: Koa.Middleware = async (ctx, next) => {
     try {
-        ctx.status = 200
         await next()
+        if (typeof ctx.body !== 'undefined') {
+            ctx.status = 200
+        }
     } catch (error) {
         const err = error as RcpError
-        koaLogger('%j', err)
         const resBody: ResBody = {
             code: err.code || 500,
             message: err.message,
         }
         ctx.body = resBody
+        ctx.status = 200
     }
+
+    koaLogger('%s %s %s', ctx.method, ctx.routerPath, ctx.url)
 }
 
 @Provider()
@@ -63,11 +67,13 @@ export class KoaAdapter {
     }
 
     createApp() {
-        return new Koa()
+        const app = new Koa()
+        app.use(onErr)
+        return app
     }
 
     createEmptyRouter() {
-        return new Router().use(onErr, onBody)
+        return new Router().use(onBody)
     }
 
     registerRouter(router: Router, infos: ApiInfo[]) {
@@ -140,6 +146,8 @@ export class KoaAdapter {
             source = ctx.query
         } else if (from === 'header') {
             source = ctx.header
+        } else if (from === 'body') {
+            source = ctx.request.body
         } else {
             throw new Error(`Unknown ctx from ${from}`)
         }

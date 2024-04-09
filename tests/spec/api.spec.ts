@@ -1,5 +1,5 @@
 import { AvalonContainer, Provider } from '@xerjs/avalon'
-import { Shield, apiPost, z, apiGet, fromParam, fromQuery } from '../../src'
+import { Shield, apiPost, z, apiGet, fromParam, fromQuery, fromHeader, fromBody } from '../../src'
 import { assert } from 'chai'
 import { createAgent } from '../helper/agent'
 import { info } from 'console'
@@ -28,6 +28,16 @@ class BisHandler {
     @apiGet('/add/:a/:b')
     async paramNumber(@fromParam.int('a') a: number, @fromParam.int('b') b: number) {
         return a * b
+    }
+
+    @apiGet('/echo/header')
+    async echoHeader(@fromHeader() header: any) {
+        return header
+    }
+
+    @apiPost('/echo/body')
+    async echoBody(@fromBody() body: any) {
+        return body
     }
 }
 
@@ -65,8 +75,14 @@ describe('Shield api', () => {
         assert.isTrue(infos[0].instance instanceof BisHandler)
     })
 
+    it('get 404', async () => {
+        let res = await agent.get('/api/v1/' + Math.random())
+        assert.equal(res.status, 404)
+        assert.deepEqual(res.body, {})
+    })
+
     it('get sample', async () => {
-        const res = await agent.get('/api/v1/hi')
+        let res = await agent.get('/api/v1/hi')
         assert.equal(res.status, 200)
         assert.deepEqual(res.body, { code: 200, data: 'hi' })
     })
@@ -92,9 +108,9 @@ describe('Shield api', () => {
         assert.equal(res.status, 200)
         assert.deepEqual(res.body, { code: 200, data: 6 })
 
-        res = await agent.get('/api/v1/add/2/3')
+        res = await agent.get('/api/v1/add/3/3')
         assert.equal(res.status, 200)
-        assert.deepEqual(res.body, { code: 200, data: 6 })
+        assert.deepEqual(res.body, { code: 200, data: 9 })
     })
 
     it('get params int;error', async () => {
@@ -104,5 +120,20 @@ describe('Shield api', () => {
             code: 40000,
             message: 'param.a: Expected number, received string',
         })
+    })
+
+    it('get header info;ok', async () => {
+        let res = await agent.get('/api/v1/echo/header')
+        assert.equal(res.status, 200)
+        assert.equal(res.body.code, 200)
+        assert.include(res.body.data, { 'accept-encoding': 'gzip, deflate', connection: 'close' })
+    })
+
+    it('echo post body;ok', async () => {
+        const data = { a: 1, b: 2 }
+        let res = await agent.post('/api/v1/echo/body').send(data)
+        assert.equal(res.status, 200)
+        assert.equal(res.body.code, 200)
+        assert.deepEqual(res.body.data, data)
     })
 })

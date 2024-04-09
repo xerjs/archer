@@ -1,4 +1,4 @@
-import { never, ZodError } from 'zod'
+import { ZodError } from 'zod'
 
 export * from './obj'
 export { format } from 'util'

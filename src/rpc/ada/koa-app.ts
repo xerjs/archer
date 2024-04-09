@@ -1,7 +1,7 @@
 import { Provider } from '@xerjs/avalon'
 import Koa from 'koa'
 import Router from 'koa-router'
-import { ApiInfo, MethodInfo } from '../types'
+import { ApiInfo, MethodInfo, RenderOpt } from '../types'
 import * as _ from '../../utils'
 import { koaLogger } from '../../utils'
 import bodyParser from 'koa-bodyparser'
@@ -76,44 +76,60 @@ export class KoaAdapter {
         return new Router().use(onBody)
     }
 
-    registerRouter(router: Router, infos: ApiInfo[]) {
+    registerRouter(router: Router, infos: ApiInfo[]): void {
+        const acts = new Set('get|post|put|patch|delete'.split('|'))
         for (const inf of infos) {
-            const ware: Koa.Middleware = async (ctx) => {
-                let method: Function | undefined
-                if (inf.instance) {
-                    method = _.get<Function>(inf.instance, inf.name)
-                }
-                if (!method) {
-                    throw new Error(`Method ${inf.name} path ${inf.path} not implemented.`)
-                }
-
-                let data
-                if (inf.inject) {
-                    const val: unknown[] = []
-                    for (let ii = 0; ii < inf.inject.length; ii++) {
-                        const inj = inf.inject[ii]
-                        val[ii] = this.pickCtx(ctx, inj.from, inj.key)
-                        if (typeof inj.convert === 'function') {
-                            val[ii] = inj.convert(val[ii])
-                        }
-                    }
-                    data = await method.call(inf.instance, ...val)
-                } else {
-                    data = await method.call(inf.instance)
-                }
-
-                if (typeof data === 'undefined') {
-                    throw new Error(`Method ${inf.path} result is undefined.`)
-                }
-                ctx.body = { code: 200, data } as ResBody
-            }
-            if (inf.method === 'get') {
-                router.get(inf.path, ware)
-            } else if (inf.method === 'post') {
-                router.post(inf.path, ware)
-            } else {
+            const ware = this.getWare(inf)
+            const act = acts.has(inf.method) && _.get(router, inf.method)
+            if (!act) {
                 throw new Error(`Method ${inf.method} ${inf.path} not implemented.`)
             }
+            router
+            act.call(router, inf.path, ware)
+        }
+    }
+
+    getWare(inf: ApiInfo): Koa.Middleware {
+        const ware: Koa.Middleware = async (ctx) => {
+            let method: Function | undefined
+            if (inf.instance) {
+                method = _.get<Function>(inf.instance, inf.name)
+            }
+            if (!method) {
+                throw new Error(`Method ${inf.name} path ${inf.path} not implemented.`)
+            }
+
+            let data
+            if (inf.inject) {
+                const val: unknown[] = []
+                for (let ii = 0; ii < inf.inject.length; ii++) {
+                    const inj = inf.inject[ii]
+                    val[ii] = this.pickCtx(ctx, inj.from, inj.key)
+                    if (typeof inj.convert === 'function') {
+                        val[ii] = inj.convert(val[ii])
+                    }
+                }
+                data = await method.call(inf.instance, ...val)
+            } else {
+                data = await method.call(inf.instance)
+            }
+
+            if (typeof data === 'undefined') {
+                throw new Error(`Method ${inf.path} result is undefined.`)
+            }
+            this.ctxBody(ctx, data, inf.render)
+        }
+
+        return ware
+    }
+
+    ctxBody(ctx: Koa.Context, data: any, render: RenderOpt) {
+        if (!render) {
+            ctx.body = { code: 200, data } as ResBody
+            return
+        }
+        if (render.as === 'text') {
+            ctx.body = data
         }
     }
 

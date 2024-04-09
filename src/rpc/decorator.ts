@@ -1,6 +1,6 @@
 import { MetaUtil } from '@xerjs/avalon'
 import { z } from 'zod'
-import { FunOpt, RpcOpt, ApiOpt, ApiArg, ApiArgConvert } from './types'
+import { FunOpt, RpcOpt, ApiOpt, ApiArg, ApiArgConvert, RenderOpt } from './types'
 import * as _ from '../utils'
 
 export const rpcMeta = new MetaUtil('archer.rpc')
@@ -20,6 +20,10 @@ export const rpcFun = rpcMeta.propertyDecorator<Partial<FunOpt>>((x) => {
 
 export const apiMeta = new MetaUtil('archer.api')
 
+export const apiText = apiMeta.classDecorator<string>((t = 'text') => {
+    return { as: t } as RenderOpt
+})
+
 export const apiFun = apiMeta.methodDecorator<ApiOpt>((x) => {
     Object.freeze(x)
     return x
@@ -31,6 +35,18 @@ export const apiPost = apiMeta.methodDecorator<string>((path) => {
 
 export const apiGet = apiMeta.methodDecorator<string>((path) => {
     return { method: 'get', path } as ApiOpt
+})
+
+export const apiPut = apiMeta.methodDecorator<string>((path) => {
+    return { method: 'put', path } as ApiOpt
+})
+
+export const apiPatch = apiMeta.methodDecorator<string>((path) => {
+    return { method: 'patch', path } as ApiOpt
+})
+
+export const apiDelete = apiMeta.methodDecorator<string>((path) => {
+    return { method: 'delete', path } as ApiOpt
 })
 
 function setArg(arg: ApiArg) {
@@ -76,9 +92,7 @@ fromParam.int = (key: string) => {
     })
 }
 
-fromParam.float = (key: string) => {}
-
-export const fromQuery = (key: string) => {
+export const fromQuery = (key: string = '.') => {
     return setArg({ from: fromVal.query, key })
 }
 

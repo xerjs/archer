@@ -11,6 +11,7 @@ export interface MethodInfo {
 export interface ApiInfo {
     res: unknown
     pars: unknown[]
+    render: RenderOpt
     inject: ApiArg[]
     name: string
     path: string
@@ -29,6 +30,10 @@ export type ApiArgConvert = (v: unknown) => unknown
 export type RpcOpt = {
     trans: string
     path: string
+}
+
+export type RenderOpt = {
+    as: string
 }
 
 export type FunOpt = {

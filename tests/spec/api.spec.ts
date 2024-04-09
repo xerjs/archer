@@ -1,8 +1,18 @@
 import { AvalonContainer, Provider } from '@xerjs/avalon'
-import { Shield, apiPost, z, apiGet, fromParam, fromQuery, fromHeader, fromBody } from '../../src'
+import {
+    Shield,
+    apiPost,
+    z,
+    apiGet,
+    fromParam,
+    fromQuery,
+    fromHeader,
+    fromBody,
+    apiText,
+} from '../../src'
 import { assert } from 'chai'
 import { createAgent } from '../helper/agent'
-import { info } from 'console'
+import { info, log } from 'console'
 
 @Provider()
 class BisHandler {
@@ -41,9 +51,21 @@ class BisHandler {
     }
 }
 
+@Provider()
+@apiText()
+class TextWeb {
+    @apiGet('/ping')
+    ping() {
+        return 'pong'
+    }
+}
+
 describe('Shield api', () => {
     const shield = AvalonContainer.root.resolve(Shield)
-    const apiSet = { '/api/v1': BisHandler }
+    const apiSet = {
+        '': TextWeb,
+        '/api/v1': BisHandler,
+    }
     const call = shield.install(apiSet)
 
     const agent = createAgent(call)
@@ -135,5 +157,11 @@ describe('Shield api', () => {
         assert.equal(res.status, 200)
         assert.equal(res.body.code, 200)
         assert.deepEqual(res.body.data, data)
+    })
+
+    it('render text', async () => {
+        const res = await agent.get('/ping')
+        assert.equal(res.status, 200)
+        assert.equal(res.text, 'pong')
     })
 })

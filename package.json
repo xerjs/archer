@@ -4,40 +4,37 @@
   "description": "ioc implement",
   "main": "src/index.js",
   "engines": {
-    "node": ">= 16.0.0"
+    "node": ">= 18.0.0"
   },
   "dependencies": {
-    "@xerjs/avalon": "^0.2.1",
-    "koa": "^2.13.4",
-    "koa-bodyparser": "^4.3.0",
-    "koa-router": "^10.1.1"
+    "debug": "*",
+    "koa": "^2.14.2",
+    "koa-bodyparser": "^4.4.0",
+    "koa-router": "^12.0.0",
+    "zod": "^3.21.4"
+  },
+  "peerDependencies": {
+    "@xerjs/avalon": "^1.0.3"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.1",
-    "@types/koa": "^2.13.4",
-    "@types/koa-bodyparser": "^4.3.7",
+    "@types/chai": "^4.3.5",
+    "@types/koa": "^2.13.6",
+    "@types/koa-bodyparser": "^4.3.10",
     "@types/koa-router": "^7.4.4",
-    "@types/mocha": "^9.1.1",
-    "@types/node": "^16.11.27",
-    "@types/supertest": "^2.0.12",
-    "@typescript-eslint/eslint-plugin": "^5.21.0",
-    "@typescript-eslint/parser": "^5.21.0",
-    "chai": "^4.3.6",
-    "eslint": "^8.14.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-no-null": "^1.0.2",
-    "mocha": "^9.2.2",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^20.3.1",
+    "@types/supertest": "^6.0.2",
+    "chai": "^4.4.1",
+    "mocha": "^10.2.0",
     "nyc": "^15.1.0",
-    "supertest": "^6.2.3",
-    "ts-node": "^10.7.0",
-    "typescript": "^4.6.3"
+    "supertest": "^6.3.3",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.5"
   },
   "scripts": {
-    "ts": "ts-node",
-    "build": "tsc -p ./tsconfig-build.json && cp package.json build",
-    "bx": "rm -rf build",
+    "build": "tsc -p ./tsconfig-build.json",
     "coverage": "nyc npm run test",
-    "test": "mocha -r ./node_modules/ts-node/register tests/index.ts"
+    "test": "mocha"
   },
   "author": "lusionx",
   "license": "MIT",
